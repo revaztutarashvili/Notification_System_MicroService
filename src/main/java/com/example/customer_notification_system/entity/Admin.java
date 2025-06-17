@@ -14,9 +14,12 @@ public class Admin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String username;
 
-    private String password;
+    @Column(nullable = false)
+    private String password; // Stored as hashed password
 
-    private String role; // მაგალითად: "ROLE_ADMIN"
+    @Column(nullable = false)
+    private String role; // New: Role field (e.g., "ROLE_SUPER_ADMIN", "ROLE_ADMIN")
 }
