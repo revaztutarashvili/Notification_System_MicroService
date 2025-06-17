@@ -1,16 +1,15 @@
-package com.example.customer_notification_system.dto.requests;
+package com.example.customer_notification_system.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class AddressDTO {
+    private Long id;
+    private String type;  // EMAIL, SMS, POSTAL - as String (enum name)
+    private String value;
 
-@Getter
-@Setter
-@Data // Use Data for convenience
-public class UpdateCustomerRequest {
-    private String fullName;    // Changed from firstName/lastName
-    private String email;
-    private String phoneNumber;
-    // Removed 'notificationPreferences' as it's managed via NotificationPreferenceController
 }
