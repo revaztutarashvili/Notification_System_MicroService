@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Preferences</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<h2>Notification Preferences</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Customer</th>
+        <th>Channel</th>
+        <th>Opted-In</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="pref : ${preferences}">
+        <td th:text="${pref.customerName}"></td>
+        <td th:text="${pref.channel}"></td>
+        <td th:text="${pref.optedIn}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

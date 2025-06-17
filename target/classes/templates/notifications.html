@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Notifications</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<h2>Notification Delivery Status</h2>
+<table>
+  <thead>
+  <tr>
+    <th>Customer</th>
+    <th>Channel</th>
+    <th>Status</th>
+    <th>Date</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="notification : ${notifications}">
+    <td th:text="${notification.customerName}"></td>
+    <td th:text="${notification.channel}"></td>
+    <td th:text="${notification.status}"></td>
+    <td th:text="${notification.sentAt}"></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
