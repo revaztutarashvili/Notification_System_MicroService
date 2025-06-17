@@ -1,4 +1,4 @@
-package com.example.customer_notification_system.security; 
+package com.example.customer_notification_system.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
