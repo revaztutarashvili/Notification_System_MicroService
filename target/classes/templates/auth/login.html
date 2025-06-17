@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Customer Notification System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 p-4">
+<div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md transform transition-all duration-300 hover:scale-105">
+  <h2 class="text-4xl font-extrabold text-gray-900 mb-6 text-center">Login</h2>
+
+  <!-- Display login error message -->
+  <div th:if="${loginError}" class="p-3 mb-4 rounded-md text-sm bg-red-100 text-red-800 border border-red-300">
+    <p th:text="${loginError}"></p>
+  </div>
+  <!-- Display logout success message -->
+  <div th:if="${logoutMessage}" class="p-3 mb-4 rounded-md text-sm bg-green-100 text-green-800 border border-green-300">
+    <p th:text="${logoutMessage}"></p>
+  </div>
+  <!-- Display general message (e.g., from registration success) -->
+  <div th:if="${message}" class="p-3 mb-4 rounded-md text-sm bg-green-100 text-green-800 border border-green-300">
+    <p th:text="${message}"></p>
+  </div>
+
+  <form th:action="@{/login}" method="post" class="space-y-4">
+    <div>
+      <input type="text" id="username" name="username" placeholder="Username" required
+             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500">
+    </div>
+    <div>
+      <input type="password" id="password" name="password" placeholder="Password" required
+             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500">
+    </div>
+    <button type="submit"
+            class="w-full bg-indigo-700 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200 ease-in-out shadow-md">
+      Login
+    </button>
+    <!-- CSRF token for Spring Security forms (if CSRF is enabled) -->
+    <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /> -->
+  </form>
+
+  <p class="text-center text-gray-600 mt-6">
+    Don't have an account?
+    <a th:href="@{/register}" class="text-indigo-600 hover:text-indigo-800 font-medium">Register here</a>
+  </p>
+</div>
+</body>
+</html>

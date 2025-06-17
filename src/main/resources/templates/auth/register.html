@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Customer Notification System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gradient-to-r from-green-500 to-teal-600 p-4">
+<div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg transform transition-all duration-300 hover:scale-105">
+    <h2 class="text-4xl font-extrabold text-gray-900 mb-6 text-center">Register</h2>
+
+    <!-- Display registration error message -->
+    <div th:if="${error}" class="p-3 mb-4 rounded-md text-sm bg-red-100 text-red-800 border border-red-300">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form th:action="@{/register}" th:object="${registerUserRequest}" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <input type="text" id="username" th:field="*{username}" placeholder="Username" required
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-500">
+            <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-red-500 text-xs mt-1"></p>
+        </div>
+        <div>
+            <input type="password" id="password" th:field="*{password}" placeholder="Password" required
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-500">
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-red-500 text-xs mt-1"></p>
+        </div>
+        <div>
+            <input type="text" id="fullName" th:field="*{fullName}" placeholder="Full Name" required
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-500">
+            <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-red-500 text-xs mt-1"></p>
+        </div>
+        <div>
+            <input type="email" id="email" th:field="*{email}" placeholder="Email" required
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-500">
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-red-500 text-xs mt-1"></p>
+        </div>
+        <div class="col-span-1 md:col-span-2">
+            <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" placeholder="Phone Number"
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-500">
+            <p th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="text-red-500 text-xs mt-1"></p>
+        </div>
+        <div class="col-span-1 md:col-span-2 mt-6">
+            <button type="submit"
+                    class="w-full bg-teal-700 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition duration-200 ease-in-out shadow-md">
+                Register
+            </button>
+        </div>
+        <!-- CSRF token for Spring Security forms (if CSRF is enabled) -->
+        <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /> -->
+    </form>
+
+    <p class="text-center text-gray-600 mt-6">
+        Already have an account?
+        <a th:href="@{/login}" class="text-teal-600 hover:text-teal-800 font-medium">Login here</a>
+    </p>
+</div>
+</body>
+</html>
