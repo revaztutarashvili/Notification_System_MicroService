@@ -1,17 +1,15 @@
 package com.example.customer_notification_system.dto.requests;
 
-import com.example.customer_notification_system.enums.NotificationChannel;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
-
 @Getter
 @Setter
+@Data // Use Data for convenience
 public class UpdateCustomerRequest {
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String email;
     private String phoneNumber;
-    private Set<NotificationChannel> notificationPreferences;
+
 }
