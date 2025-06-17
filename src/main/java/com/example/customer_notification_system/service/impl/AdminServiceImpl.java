@@ -40,3 +40,4 @@ public class AdminServiceImpl implements AdminService {
         );
         return new AdminDTO(admin.getId(), admin.getUsername());
     }
+}
