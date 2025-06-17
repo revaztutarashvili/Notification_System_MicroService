@@ -1,9 +1,10 @@
-package com.example.customer_notification_system.config; // Adjust package as needed
+package com.example.customer_notification_system.config;
 
 import com.example.customer_notification_system.repository.CustomerRepository;
 import com.example.customer_notification_system.repository.AdminRepository;
-import com.example.customer_notification_system.security.JwtAuthenticationFilter; // New import
-import com.example.customer_notification_system.security.JwtTokenProvider; // New import
+import com.example.customer_notification_system.security.JwtAuthenticationFilter;
+import com.example.customer_notification_system.security.JwtTokenProvider;
+import com.example.customer_notification_system.security.CustomUserDetails;
 import com.example.customer_notification_system.entity.Admin;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,20 +22,24 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // New import
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.OncePerRequestFilter; // For initial admin creation
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -44,25 +49,25 @@ public class SecurityConfig {
 
     private final CustomerRepository customerRepository;
     private final AdminRepository adminRepository;
-    private final JwtTokenProvider jwtTokenProvider; // Inject JwtTokenProvider
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configure CORS
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
                         // Publicly accessible endpoints (no authentication required)
-                        .requestMatchers("/api/auth/login").permitAll() // Allow login endpoint
-                        .requestMatchers("/api/customers/register").permitAll() // Allow registration endpoint
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Allow Swagger UI access
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/customers/register").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
                         // Initial SuperAdmin Creation (only if no admins exist)
                         .requestMatchers("/api/admins/initial-superadmin").permitAll() // Temporarily permit for initial setup
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Use stateless sessions (JWT)
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService()), UsernamePasswordAuthenticationFilter.class); // Add JWT filter
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService()), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -77,25 +82,22 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
             // First, try to find the user as an Admin
             return adminRepository.findByUsername(username)
-                    .map(admin -> org.springframework.security.core.userdetails.User
-                            .withUsername(admin.getUsername())
-                            .password(admin.getPassword()) // Hashed password from DB
-                            .roles(admin.getRole().replace("ROLE_", "")) // Remove "ROLE_" prefix for roles() method
-                            .build())
+                    .map(admin -> {
+                        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(admin.getRole()));
+                        return new CustomUserDetails(admin.getId(), admin.getUsername(), admin.getPassword(), authorities, admin.getRole());
+                    })
                     .orElseGet(() -> {
                         // If not found as Admin, try to find as a Customer
                         return customerRepository.findByUsername(username)
-                                .map(customer -> org.springframework.security.core.userdetails.User
-                                        .withUsername(customer.getUsername())
-                                        .password(customer.getPassword()) // Hashed password from DB
-                                        .roles("USER") // Assign a default role for registered customers
-                                        .build())
+                                .map(customer -> {
+                                    List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+                                    return new CustomUserDetails(customer.getId(), customer.getUsername(), customer.getPassword(), authorities, "ROLE_USER");
+                                })
                                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
                     });
         };
@@ -104,7 +106,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000")); // Allow your React app's origins
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
@@ -117,19 +119,22 @@ public class SecurityConfig {
     @Bean
     public OncePerRequestFilter initialSuperAdminCreator(PasswordEncoder passwordEncoder) {
         return new OncePerRequestFilter() {
-            private boolean superAdminCreated = false; // Flag to ensure creation happens only once
+            private boolean superAdminCreationAttempted = false; // Flag to ensure creation happens only once per app lifetime
 
             @Override
             protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-                if (!superAdminCreated && adminRepository.count() == 0) {
-                    // Create SuperAdmin only if no admins exist in the DB
-                    Admin superAdmin = new Admin();
-                    superAdmin.setUsername("superadmin");
-                    superAdmin.setPassword(passwordEncoder.encode("123")); // Hashed password for superadmin
-                    superAdmin.setRole("ROLE_SUPER_ADMIN");
-                    adminRepository.save(superAdmin);
-                    superAdminCreated = true;
-                    System.out.println("SuperAdmin 'superadmin' created with password '123'.");
+                // Ensure this logic runs only once per application startup
+                if (!superAdminCreationAttempted) {
+                    if (adminRepository.count() == 0) { // Check if there are no admins in the DB
+                        // Create SuperAdmin only if no admins exist in the DB
+                        Admin superAdmin = new Admin();
+                        superAdmin.setUsername("superadmin");
+                        superAdmin.setPassword(passwordEncoder.encode("123")); // Hashed password for superadmin
+                        superAdmin.setRole("ROLE_SUPER_ADMIN");
+                        adminRepository.save(superAdmin);
+                        System.out.println("SuperAdmin 'superadmin' created with password '123'.");
+                    }
+                    superAdminCreationAttempted = true; // Mark as attempted
                 }
                 filterChain.doFilter(request, response);
             }
