@@ -5,6 +5,7 @@ import com.example.customer_notification_system.entity.*;
 import com.example.customer_notification_system.repository.*;
 import com.example.customer_notification_system.service.*;
 import com.example.customer_notification_system.enums.AddressType;
+import com.example.customer_notification_system.exception.ResourceNotFoundException; // Import custom exception
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +24,10 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressDTO addAddress(CreateAddressRequest request) {
         Customer customer = customerRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer with ID: " + request.getCustomerId() + " not found.")); // Improved error message
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with ID: " + request.getCustomerId() + " not found."));
 
         Address address = new Address();
         address.setCustomer(customer);
-
 
         try {
             address.setType(AddressType.valueOf(request.getType().toUpperCase()));
@@ -48,11 +48,20 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public void deleteAddress(Long addressId) {
+        if (!addressRepository.existsById(addressId)) {
+            throw new ResourceNotFoundException("Address not found with ID: " + addressId);
+        }
         addressRepository.deleteById(addressId);
     }
 
-    private AddressDTO toDTO(Address address) {
+    @Override
+    public boolean isAddressOwnedBy(Long addressId, Long userId) {
+        return addressRepository.findById(addressId)
+                .map(address -> address.getCustomer().getId().equals(userId))
+                .orElse(false);
+    }
 
+    private AddressDTO toDTO(Address address) {
         return new AddressDTO(
                 address.getId(),
                 address.getType() != null ? address.getType().name() : null,

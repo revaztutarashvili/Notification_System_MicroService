@@ -8,4 +8,5 @@ public interface AddressService {
     AddressDTO addAddress(CreateAddressRequest request);
     List<AddressDTO> getAddressesByCustomerId(Long customerId);
     void deleteAddress(Long addressId);
+    boolean isAddressOwnedBy(Long addressId, Long userId); // New method for authorization checks
 }
