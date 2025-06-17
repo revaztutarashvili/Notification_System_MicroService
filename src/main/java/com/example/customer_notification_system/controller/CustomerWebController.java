@@ -16,9 +16,18 @@ import java.util.List;
 @Controller // Use @Controller for rendering views (not @RestController)
 @RequestMapping("/") // Base path for web pages
 @RequiredArgsConstructor
-public class CustomerWebController { // Renamed to avoid conflict with REST CustomerController
+public class CustomerWebController {
 
     private final CustomerService customerService;
+
+    /**
+     * Redirects the root URL to the customers list page.
+     * This provides a default landing page for the application.
+     */
+    @GetMapping("/") // Handle requests to the root URL (http://localhost:8082/)
+    public String redirectToCustomersList() {
+        return "redirect:/customers"; // Redirect to the /customers endpoint
+    }
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
@@ -45,14 +54,5 @@ public class CustomerWebController { // Renamed to avoid conflict with REST Cust
         return "customers"; // Refers to src/main/resources/templates/customers.html
     }
 
-    // TODO: Add methods for /customers/edit/{id} and /customers/delete/{id} as POST for form submission
-    // For delete, you'd generally use a POST redirect GET pattern to avoid re-submitting on refresh.
-        /*
-        @PostMapping("/customers/delete/{id}")
-        public String deleteCustomer(@PathVariable Long id) {
-            customerService.deleteCustomer(id);
-            return "redirect:/customers";
-        }
-        */
+    // ... (other methods like /customers/edit/{id} and /customers/delete/{id})
 }
-    
