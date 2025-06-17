@@ -6,17 +6,15 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CustomerDTO {
     private Long id;
+    private String username; // New: Username field to display
     private String fullName;
     private String email;
     private String phoneNumber;
-    private List<AddressDTO> addresses;
-    private NotificationPreferenceDTO notificationPreference;
-
-
+    private List<AddressDTO> addresses; // Assuming addresses are part of the customer DTO representation
+    private NotificationPreferenceDTO notificationPreference; // Assuming notification preferences are part of the customer DTO representation
 }
