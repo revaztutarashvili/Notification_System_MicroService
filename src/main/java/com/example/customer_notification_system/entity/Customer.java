@@ -18,19 +18,21 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false) // New: Username for login, must be unique and not null
-    private String username;
-
-    @Column(nullable = false) // New: Hashed password for login, must not be null
-    private String password;
+    @Column(unique = true) // Make username unique
+    private String username; // Added for login/registration
 
     @Column(nullable = false)
     private String fullName;
 
-    @Column(unique = true) // Email should ideally be unique for customer records
+    @Column(unique = true) // Email should be unique
     private String email;
 
     private String phoneNumber;
+
+    private String password; // Added for login/registration (hashed password)
+
+    @Column(nullable = false) // NEW: Add role field for customers
+    private String role; // e.g., "ROLE_USER"
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> addresses;

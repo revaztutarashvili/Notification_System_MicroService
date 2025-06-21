@@ -47,23 +47,22 @@ public class AuthController {
         String jwt = tokenProvider.generateToken(authentication);
 
         // Determine user role and ID to return in the response
-        String role = authentication.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElse("ROLE_USER");
+        String role = null; // Default to null/empty if no explicit role
         Long userId = null;
 
-        if (role.contains("ADMIN")) { // Check for admin roles
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().contains("ADMIN"))) { // Check for admin roles
             Optional<Admin> admin = adminRepository.findByUsername(loginRequest.getUsername());
             if (admin.isPresent()) {
                 userId = admin.get().getId();
                 role = admin.get().getRole(); // Use the specific role from Admin entity (e.g., ROLE_SUPER_ADMIN)
             }
-        } else { // Assume it's a regular user
+        } else { // It's a customer, but they don't have ROLE_USER anymore
             Optional<Customer> customer = customerRepository.findByUsername(loginRequest.getUsername());
             if (customer.isPresent()) {
                 userId = customer.get().getId();
-                role = "ROLE_USER"; // Explicitly set for customers
+                role = ""; // Explicitly set to empty string if no role for non-admin users
             }
         }
-
 
         return ResponseEntity.ok(new LoginResponse(jwt, userId, loginRequest.getUsername(), role));
     }

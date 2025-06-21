@@ -1,101 +1,77 @@
 package com.example.customer_notification_system.service.impl;
 
-import com.example.customer_notification_system.dto.requests.CreateCustomerRequest;
-import com.example.customer_notification_system.dto.requests.UpdateCustomerRequest;
-import com.example.customer_notification_system.dto.requests.RegisterUserRequest; // New import
 import com.example.customer_notification_system.dto.CustomerDTO;
+import com.example.customer_notification_system.dto.requests.CreateCustomerRequest;
+import com.example.customer_notification_system.dto.requests.RegisterUserRequest;
+import com.example.customer_notification_system.dto.requests.UpdateCustomerRequest;
 import com.example.customer_notification_system.entity.Customer;
+import com.example.customer_notification_system.exception.DuplicateResourceException;
+import com.example.customer_notification_system.exception.ResourceNotFoundException;
 import com.example.customer_notification_system.repository.CustomerRepository;
 import com.example.customer_notification_system.service.CustomerService;
-import com.example.customer_notification_system.mapper.EntityMapper; // Import EntityMapper for consistent mapping
-import com.example.customer_notification_system.exception.ResourceNotFoundException; // Import custom exception
-import com.example.customer_notification_system.exception.DuplicateResourceException; // Import custom exception
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder; // New import for password encoding
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
-class CustomerServiceImpl implements CustomerService {
+public class CustomerServiceImpl implements CustomerService {
+
     private final CustomerRepository customerRepository;
-    private final PasswordEncoder passwordEncoder; // New: Inject PasswordEncoder
-
-    @Override
-    public CustomerDTO registerUser(RegisterUserRequest request) {
-        // Check for duplicate username
-        if (customerRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new DuplicateResourceException("Username '" + request.getUsername() + "' already exists.");
-        }
-        // Check for duplicate email (if email is also considered unique for login/registration)
-        if (request.getEmail() != null && customerRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new DuplicateResourceException("Email '" + request.getEmail() + "' already exists.");
-        }
-
-        Customer customer = new Customer();
-        customer.setUsername(request.getUsername());
-        customer.setPassword(passwordEncoder.encode(request.getPassword())); // Encode password before saving
-        customer.setFullName(request.getFullName());
-        customer.setEmail(request.getEmail());
-        customer.setPhoneNumber(request.getPhoneNumber());
-
-        return EntityMapper.toCustomerDTO(customerRepository.save(customer));
-    }
+    private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public CustomerDTO createCustomer(CreateCustomerRequest request) {
-        // This method can be used by an admin to add customer records.
-        // If username/password are not provided here, these customers cannot log in.
-        Customer customer = new Customer();
-        customer.setFullName(request.getFullName());
-        customer.setEmail(request.getEmail());
-        customer.setPhoneNumber(request.getPhoneNumber());
-        // If username/password are optional or generated for non-login customers, handle here
-        // For now, these customers will not have login capabilities if created via this method.
-        return EntityMapper.toCustomerDTO(customerRepository.save(customer));
+        if (customerRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new DuplicateResourceException("Username '" + request.getUsername() + "' already exists.");
+        }
+        Customer customer = modelMapper.map(request, Customer.class);
+        customer.setPassword(passwordEncoder.encode(request.getPassword()));
+        // Role assignment for customers removed as per request to remove ROLE_USER
+        Customer savedCustomer = customerRepository.save(customer);
+        return modelMapper.map(savedCustomer, CustomerDTO.class);
     }
 
     @Override
     public CustomerDTO getCustomerById(Long id) {
-        return customerRepository.findById(id).map(EntityMapper::toCustomerDTO)
+        Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + id));
-    }
-
-    @Override
-    public List<CustomerDTO> getAllCustomers() {
-        return customerRepository.findAll().stream().map(EntityMapper::toCustomerDTO).collect(Collectors.toList());
+        return modelMapper.map(customer, CustomerDTO.class);
     }
 
     @Override
     public CustomerDTO updateCustomer(Long id, UpdateCustomerRequest request) {
-        Customer customer = customerRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Customer not found with ID: " + id)
-        );
+        Customer existingCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + id));
 
-        // Update fields only if they are provided in the request (partial update)
+        if (request.getUsername() != null && !request.getUsername().equals(existingCustomer.getUsername())) {
+            if (customerRepository.findByUsername(request.getUsername()).isPresent()) {
+                throw new DuplicateResourceException("Username '" + request.getUsername() + "' already exists.");
+            }
+            existingCustomer.setUsername(request.getUsername());
+        }
+        if (request.getPassword() != null) {
+            existingCustomer.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         if (request.getFullName() != null) {
-            customer.setFullName(request.getFullName());
+            existingCustomer.setFullName(request.getFullName());
         }
         if (request.getEmail() != null) {
-            // Check for duplicate email if updating and email is unique
-            if (customerRepository.findByEmail(request.getEmail()).isPresent() &&
-                    !customer.getEmail().equals(request.getEmail())) { // Only check if email actually changed
-                throw new DuplicateResourceException("Email '" + request.getEmail() + "' already exists.");
-            }
-            customer.setEmail(request.getEmail());
+            existingCustomer.setEmail(request.getEmail());
         }
         if (request.getPhoneNumber() != null) {
-            customer.setPhoneNumber(request.getPhoneNumber());
+            existingCustomer.setPhoneNumber(request.getPhoneNumber());
         }
-        // If username/password are meant to be updatable, you would add logic here
-        // For example: if (request.getNewPassword() != null) customer.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        // Make sure to consider if username can also be updated and its uniqueness.
 
-        return EntityMapper.toCustomerDTO(customerRepository.save(customer));
+        Customer updatedCustomer = customerRepository.save(existingCustomer);
+        return modelMapper.map(updatedCustomer, CustomerDTO.class);
     }
 
     @Override
@@ -107,15 +83,41 @@ class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerDTO> searchCustomers(String query) {
-        // This method currently searches only by fullName.
-        // if we need to combine results from multiple find methods if needed
-        // For example:
-        // List<Customer> byFullName = customerRepository.findByFullNameContainingIgnoreCase(query);
-        // List<Customer> byEmail = customerRepository.findByEmailContainingIgnoreCase(query);
-        // List<Customer> byPhone = customerRepository.findByPhoneNumberContaining(query);
-        // Combine and return distinct results.
-        return customerRepository.findByFullNameContainingIgnoreCase(query)
-                .stream().map(EntityMapper::toCustomerDTO).collect(Collectors.toList());
+    public Page<CustomerDTO> getAllCustomers(Pageable pageable) {
+        Page<Customer> customersPage = customerRepository.findAll(pageable);
+        return customersPage.map(customer -> modelMapper.map(customer, CustomerDTO.class));
+    }
+
+    @Override
+    public Page<CustomerDTO> searchCustomers(String query, Pageable pageable) {
+        Page<Customer> customersPage = customerRepository.findByUsernameContainingIgnoreCaseOrFullNameContainingIgnoreCase(query, query, pageable);
+        return customersPage.map(customer -> modelMapper.map(customer, CustomerDTO.class));
+    }
+
+    @Override
+    public List<CustomerDTO> getAllCustomers() {
+        return customerRepository.findAll().stream()
+                .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CustomerDTO registerNewCustomer(RegisterUserRequest request) {
+        if (customerRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new DuplicateResourceException("Username '" + request.getUsername() + "' already exists.");
+        }
+
+        Customer newCustomer = new Customer();
+        newCustomer.setUsername(request.getUsername());
+        newCustomer.setPassword(passwordEncoder.encode(request.getPassword()));
+        newCustomer.setFullName(request.getFullName());
+        newCustomer.setEmail(request.getEmail());
+        newCustomer.setPhoneNumber(request.getPhoneNumber());
+        // Role assignment for new registered customers removed as per request to remove ROLE_USER
+        // The 'role' field in Customer entity can still exist but will not be set to 'ROLE_USER' from the enum.
+        // It will be null by default, or an empty string, depending on your database schema and default values.
+
+        Customer savedCustomer = customerRepository.save(newCustomer);
+        return modelMapper.map(savedCustomer, CustomerDTO.class);
     }
 }

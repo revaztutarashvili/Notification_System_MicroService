@@ -19,30 +19,28 @@ public class NotificationPreferenceController {
 
     /**
      * Retrieves the notification preferences for a specific customer.
-     * Accessible by ADMINs (for any customer) or by USERs (only for their own preferences).
+     * Accessible by ADMINs (for any customer).
      *
      * @param customerId The ID of the customer whose preferences are to be retrieved.
-     * @param currentUser The authenticated user's details.
      * @return ResponseEntity with the NotificationPreferenceDTO and HTTP status 200 OK.
      */
     @GetMapping("/customer/{customerId}") // GET /api/preferences/customer/{customerId}
-    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN') or (hasRole('ROLE_USER') and #customerId == authentication.principal.id)")
-    public ResponseEntity<NotificationPreferenceDTO> getPreferences(@PathVariable Long customerId, @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')") // Only admins can access preferences
+    public ResponseEntity<NotificationPreferenceDTO> getPreferences(@PathVariable Long customerId) {
         return ResponseEntity.ok(preferenceService.getPreferencesByCustomerId(customerId));
     }
 
     /**
      * Updates the notification preferences for a specific customer.
-     * Accessible by ADMINs (for any customer) or by USERs (only for their own preferences).
+     * Accessible by ADMINs (for any customer).
      *
      * @param customerId The ID of the customer whose preferences are being updated.
      * @param request The DTO containing the updated notification preference details.
-     * @param currentUser The authenticated user's details.
      * @return ResponseEntity with the updated NotificationPreferenceDTO and HTTP status 200 OK.
      */
     @PutMapping("/customer/{customerId}") // PUT /api/preferences/customer/{customerId}
-    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN') or (hasRole('ROLE_USER') and #customerId == authentication.principal.id)")
-    public ResponseEntity<NotificationPreferenceDTO> updatePreferences(@PathVariable Long customerId, @RequestBody UpdateNotificationPreferenceRequest request, @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')") // Only admins can update preferences
+    public ResponseEntity<NotificationPreferenceDTO> updatePreferences(@PathVariable Long customerId, @RequestBody UpdateNotificationPreferenceRequest request) {
         return ResponseEntity.ok(preferenceService.updatePreferences(customerId, request));
     }
 

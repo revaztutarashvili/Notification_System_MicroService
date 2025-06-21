@@ -5,8 +5,9 @@ import com.example.customer_notification_system.dto.requests.CreateAddressReques
 import java.util.List;
 public interface AddressService {
 
-    AddressDTO addAddress(CreateAddressRequest request);
+   public AddressDTO addAddress(CreateAddressRequest request);
     List<AddressDTO> getAddressesByCustomerId(Long customerId);
     void deleteAddress(Long addressId);
     boolean isAddressOwnedBy(Long addressId, Long userId); // New method for authorization checks
+
 }

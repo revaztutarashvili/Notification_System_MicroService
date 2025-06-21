@@ -1,16 +1,17 @@
 package com.example.customer_notification_system.controller;
-import com.example.customer_notification_system.dto.*;
-import com.example.customer_notification_system.dto.requests.*;
-import com.example.customer_notification_system.service.*;
-import com.example.customer_notification_system.security.CustomUserDetails;
+
+import com.example.customer_notification_system.dto.CustomerDTO;
+import com.example.customer_notification_system.dto.requests.CreateCustomerRequest;
+import com.example.customer_notification_system.dto.requests.UpdateCustomerRequest;
+import com.example.customer_notification_system.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize; // Import @PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal; // Import @AuthenticationPrincipal
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -18,49 +19,31 @@ import java.util.List;
 public class CustomerController {
     private final CustomerService customerService;
 
-    /**
-     * Registers a new user/customer account. Publicly accessible.
-     */
-    @PostMapping("/register") // POST /api/customers/register
-    @PreAuthorize("permitAll()") // This endpoint is publicly accessible
-    public ResponseEntity<CustomerDTO> registerUser(@RequestBody RegisterUserRequest request) {
-        CustomerDTO registeredCustomer = customerService.registerUser(request);
-        return new ResponseEntity<>(registeredCustomer, HttpStatus.CREATED);
-    }
-
-    /**
-     * Creates a new customer record. Only accessible by ADMINs.
-     */
-    @PostMapping // POST /api/customers
+    // Existing: Create Customer
+    @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
-    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CreateCustomerRequest request) {
-        return ResponseEntity.ok(customerService.createCustomer(request));
+    public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CreateCustomerRequest request) {
+        CustomerDTO createdCustomer = customerService.createCustomer(request);
+        return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
     }
 
-    /**
-     * Retrieves a customer's details by their unique ID.
-     * Accessible by ADMINs (for any customer) or by USERs (only for their own profile).
-     */
-    @GetMapping("/{id}") // GET /api/customers/{id}
-    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN') or (hasRole('ROLE_USER') and #id == authentication.principal.id)")
-    public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
+    // Existing: Get Customer by ID
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')") // Only admins can get customer by ID
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
         return ResponseEntity.ok(customerService.getCustomerById(id));
     }
 
-    /**
-     * Updates an existing customer's details by their unique ID.
-     * Accessible by ADMINs (for any customer) or by USERs (only for their own profile).
-     */
-    @PutMapping("/{id}") // PUT /api/customers/{id}
-    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN') or (hasRole('ROLE_USER') and #id == authentication.principal.id)")
-    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id, @RequestBody UpdateCustomerRequest request, @AuthenticationPrincipal CustomUserDetails currentUser) {
-        return ResponseEntity.ok(customerService.updateCustomer(id, request));
+    // Existing: Update Customer
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
+    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id, @Valid @RequestBody UpdateCustomerRequest request) {
+        CustomerDTO updatedCustomer = customerService.updateCustomer(id, request);
+        return ResponseEntity.ok(updatedCustomer);
     }
 
-    /**
-     * Deletes a customer by their unique ID. Only accessible by ADMINs.
-     */
-    @DeleteMapping("/{id}") // DELETE /api/customers/{id}
+    // Existing: Delete Customer
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomer(id);
@@ -68,20 +51,24 @@ public class CustomerController {
     }
 
     /**
-     * Retrieves a list of all customers. Only accessible by ADMINs.
+     * Retrieves a paginated list of all customers.
+     * Accessible by ADMINs.
+     * Example: GET /api/customers?page=0&size=10&sort=username,asc
      */
     @GetMapping // GET /api/customers
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
-    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
-        return ResponseEntity.ok(customerService.getAllCustomers());
+    public ResponseEntity<Page<CustomerDTO>> getAllCustomers(Pageable pageable) {
+        return ResponseEntity.ok(customerService.getAllCustomers(pageable));
     }
 
-    // TODO: Add search endpoint with appropriate authorization (likely ADMIN only)
-    /*
-    @GetMapping("/search") // GET /api/customers/search?query=someName
+    /**
+     * Searches for customers based on a query string, with pagination and sorting.
+     * Accessible by ADMINs.
+     * Example: GET /api/customers/search?query=john&page=0&size=5&sort=fullName,desc
+     */
+    @GetMapping("/search") // GET /api/customers/search?query=...
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
-    public ResponseEntity<List<CustomerDTO>> searchCustomers(@RequestParam String query) {
-        return ResponseEntity.ok(customerService.searchCustomers(query));
+    public ResponseEntity<Page<CustomerDTO>> searchCustomers(@RequestParam(required = false) String query, Pageable pageable) {
+        return ResponseEntity.ok(customerService.searchCustomers(query, pageable));
     }
-    */
 }

@@ -31,51 +31,48 @@ public class AuthWebController {
                                 @RequestParam(value = "logout", required = false) String logout,
                                 Model model) {
         if (error != null) {
-            model.addAttribute("loginError", "Invalid username or password.");
+            model.addAttribute("errorMessage", "Invalid Username or Password!");
         }
         if (logout != null) {
-            model.addAttribute("logoutMessage", "You have been logged out successfully.");
+            model.addAttribute("message", "You have been logged out successfully.");
         }
         return "auth/login"; // Refers to src/main/resources/templates/auth/login.html
     }
 
     /**
-     * Displays the registration form.
+     * Displays the registration page.
      * @param model The model to add attributes for the view.
      * @return The name of the registration Thymeleaf template.
      */
     @GetMapping("/register")
-    public String showRegistrationForm(Model model) {
+    public String showRegistrationPage(Model model) {
         model.addAttribute("registerUserRequest", new RegisterUserRequest());
         return "auth/register"; // Refers to src/main/resources/templates/auth/register.html
     }
 
     /**
-     * Handles the user registration form submission.
-     * Redirects to login page on success or stays on registration page with error.
-     * @param request The DTO containing registration details from the form.
+     * Handles the registration form submission.
+     * @param request The DTO containing registration details.
      * @param redirectAttributes For flash messages on redirect.
-     * @param model The model to add attributes (e.g., error messages).
-     * @return Redirects to login page on success, or stays on register page with error.
+     * @return Redirects to login on success, or back to register on error.
      */
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("registerUserRequest") RegisterUserRequest request,
-                               RedirectAttributes redirectAttributes, Model model) {
+    public String registerUser(@ModelAttribute("registerUserRequest") RegisterUserRequest request, RedirectAttributes redirectAttributes) {
         try {
-            customerService.registerUser(request);
+            customerService.registerNewCustomer(request);
             redirectAttributes.addFlashAttribute("message", "Registration successful! Please log in.");
-            return "redirect:/login"; // Redirect to login page after successful registration
+            return "redirect:/login";
         } catch (DuplicateResourceException e) {
-            model.addAttribute("error", e.getMessage());
-            return "auth/register"; // Stay on registration page with error
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/register";
         } catch (Exception e) {
-            model.addAttribute("error", "An unexpected error occurred during registration: " + e.getMessage());
-            return "auth/register";
+            redirectAttributes.addFlashAttribute("error", "Error during registration: " + e.getMessage());
+            return "redirect:/register";
         }
     }
 
     /**
-     * Redirects to the appropriate dashboard after successful login.
+     * Handles redirection after successful login.
      * This method intercepts the /dashboard path and redirects based on the authenticated user's role.
      * @param authentication The Spring Security Authentication object containing user details and authorities.
      * @return A redirection string to the appropriate dashboard URL.
@@ -88,13 +85,20 @@ public class AuthWebController {
                     .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN") || a.getAuthority().equals("ROLE_ADMIN"))) {
                 return "redirect:/admin/dashboard"; // Redirect to admin dashboard
             }
-            // Check if the user has USER role
-            else if (authentication.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_USER"))) {
-                return "redirect:/user/dashboard"; // Redirect to user dashboard
-            }
+            // If authenticated but not an admin (and ROLE_USER is removed), redirect to access denied page
+            return "redirect:/access-denied";
         }
-        return "redirect:/login"; // Fallback to login if not authenticated or no matching role
+        // Fallback to login if not authenticated
+        return "redirect:/login";
+    }
+
+    /**
+     * Displays a generic access denied page.
+     * @return The name of the access denied Thymeleaf template.
+     */
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "error/access-denied"; // Refers to src/main/resources/templates/error/access-denied.html
     }
 
     /**

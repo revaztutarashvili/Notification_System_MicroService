@@ -32,11 +32,11 @@ public class NotificationStatusController {
 
     /**
      * Retrieves a list of all notification statuses for a specific customer.
-     * Accessible by ADMINs (for any customer) or by USERs (only for their own statuses).
+     * Accessible by ADMINs (for any customer).
      */
     @GetMapping("/customer/{customerId}") // GET /api/notifications/customer/{customerId}
-    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN') or (hasRole('ROLE_USER') and #customerId == authentication.principal.id)")
-    public ResponseEntity<List<NotificationStatusDTO>> getByCustomer(@PathVariable Long customerId, @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')") // Only admins can view customer notification statuses
+    public ResponseEntity<List<NotificationStatusDTO>> getByCustomer(@PathVariable Long customerId) {
         return ResponseEntity.ok(notificationStatusService.getStatusByCustomerId(customerId));
     }
 

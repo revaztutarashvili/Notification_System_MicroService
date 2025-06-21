@@ -1,15 +1,17 @@
 package com.example.customer_notification_system.controller;
-import com.example.customer_notification_system.dto.*;
-import com.example.customer_notification_system.dto.requests.*;
-import com.example.customer_notification_system.service.*;
-import com.example.customer_notification_system.security.CustomUserDetails; // Import CustomUserDetails
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize; // Import @PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal; // Import @AuthenticationPrincipal
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import com.example.customer_notification_system.dto.AdminDTO;
+import com.example.customer_notification_system.dto.requests.CreateAdminRequest; // Assuming you have this DTO for creation
+import com.example.customer_notification_system.dto.requests.UpdateAdminRequest;
+import com.example.customer_notification_system.service.AdminService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+
+import java.util.List; // If you decide to add getAllAdmins later
 
 @RestController
 @RequestMapping("/api/admins")
@@ -17,59 +19,45 @@ import java.util.List;
 public class AdminController {
     private final AdminService adminService;
 
-    /**
-     * Creates a new administrator account.
-     * Only SUPER_ADMINs and ADMINs can create new admins.
-     * ADMINs cannot create SUPER_ADMINs.
-     *
-     * @param username The username for the new admin.
-     * @param password The password for the new admin.
-     * @param role The role for the new admin (e.g., "ROLE_ADMIN"). Only SUPER_ADMIN can set "ROLE_SUPER_ADMIN".
-     * @param currentUser The authenticated user.
-     * @return ResponseEntity with the created AdminDTO and HTTP status 200 OK.
-     */
+    // Existing or planned: Create Admin
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
-    public ResponseEntity<AdminDTO> createAdmin(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam(defaultValue = "ROLE_ADMIN") String role, // Default to ADMIN
-            @AuthenticationPrincipal CustomUserDetails currentUser) {
-
-        // Logic to prevent ADMIN from creating SUPER_ADMIN
-        if (role.equals("ROLE_SUPER_ADMIN") && !currentUser.getRole().equals("ROLE_SUPER_ADMIN")) {
-            return ResponseEntity.status(403).build(); // Forbidden
-        }
-        // Ensure role is a valid admin role
-        if (!role.equals("ROLE_ADMIN") && !role.equals("ROLE_SUPER_ADMIN")) {
-            return ResponseEntity.badRequest().build(); // Invalid role
-        }
-
-        return ResponseEntity.ok(adminService.createAdmin(username, password, role));
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    public ResponseEntity<AdminDTO> createAdmin(@Valid @RequestBody CreateAdminRequest request) {
+        AdminDTO createdAdmin = adminService.createAdmin(request.getUsername(), request.getPassword(), request.getRole());
+        return new ResponseEntity<>(createdAdmin, HttpStatus.CREATED);
     }
 
-    /**
-     * Retrieves an administrator's details by their username.
-     * Only SUPER_ADMINs and ADMINs can view other admins.
-     *
-     * @param username The username of the admin to retrieve.
-     * @return ResponseEntity with the AdminDTO and HTTP status 200 OK.
-     */
-    @GetMapping("/{username}")
-    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
-    public ResponseEntity<AdminDTO> getAdmin(@PathVariable String username) {
+    // Get Admin by Username
+    @GetMapping("/username/{username}")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    public ResponseEntity<AdminDTO> getAdminByUsername(@PathVariable String username) {
         return ResponseEntity.ok(adminService.getAdminByUsername(username));
     }
 
-    // TODO: Add deleteAdmin endpoint and implement logic as specified (SuperAdmin cannot delete SuperAdmin)
-    // Example delete:
-    /*
+    // New: Update Admin
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    public ResponseEntity<AdminDTO> updateAdmin(@PathVariable Long id, @Valid @RequestBody UpdateAdminRequest request) {
+        AdminDTO updatedAdmin = adminService.updateAdmin(id, request);
+        return ResponseEntity.ok(updatedAdmin);
+    }
+
+    // New: Delete Admin
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN') and (@adminService.isAdminDeleteAllowed(#id, authentication.principal.id, authentication.principal.authorities))")
-    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
-        adminService.deleteAdmin(id); // This method needs to exist and verify roles internally
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+        adminService.deleteAdmin(id);
+        return ResponseEntity.noContent().build(); // 204 No Content
+    }
+
+    // Optional: Get all admins (requires implementation in AdminService)
+    /*
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    public ResponseEntity<List<AdminDTO>> getAllAdmins() {
+        // You would need to add a getAllAdmins method to AdminService and AdminRepository
+        // return ResponseEntity.ok(adminService.getAllAdmins());
+        return ResponseEntity.ok(List.of()); // Placeholder
     }
     */
-    // TODO: Add updateAdmin endpoint (only SUPER_ADMIN can change roles, and no one can update superadmin's role to non-superadmin)
 }

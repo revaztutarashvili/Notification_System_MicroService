@@ -21,7 +21,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy; // Will be less relevant for web UI, but keep for API
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository; // Still needed for customer data operations, but not for user login lookup
     private final AdminRepository adminRepository;
     private final JwtTokenProvider jwtTokenProvider; // Still used for API endpoints
 
@@ -55,8 +55,6 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // Configure CSRF (Cross-Site Request Forgery) protection
-                // For development and simple HTML forms, we might disable it for now.
-                // For production web UIs, enable it and use Thymeleaf's _csrf token in forms.
                 .csrf(csrf -> csrf.disable()) // Temporarily disable CSRF for simpler HTML forms
 
                 // Configure CORS (Cross-Origin Resource Sharing)
@@ -66,22 +64,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // Publicly accessible API endpoints (no authentication required, e.g., for mobile/external apps)
                         .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/customers/register").permitAll()
+                        .requestMatchers("/api/customers/register").permitAll() // Keep this if customers can self-register their data (not login accounts)
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Allow Swagger UI access
 
                         // Initial SuperAdmin Creation (only if no admins exist) - this path will only work once on startup
                         .requestMatchers("/initial-superadmin-setup").permitAll() // Web path for initial setup status (optional)
 
                         // Publicly accessible Web UI pages
-                        .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**").permitAll() // Allow login, register pages and static resources
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**", "/access-denied").permitAll() // Allow login, register, static resources, and access-denied page
                         .requestMatchers("/").permitAll() // Allow root path to redirect (handled by controller)
 
                         // Admin-only Web UI pages
                         .requestMatchers("/admin/**").hasAnyRole("SUPER_ADMIN", "ADMIN") // Admin dashboard and management pages
                         .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN") // SuperAdmin specific pages (if any)
 
-                        // User-only Web UI pages
-                        .requestMatchers("/user/**").hasRole("USER") // User dashboard and profile pages
+                        // Removed: User-only Web UI pages as ROLE_USER is deprecated
+                        // .requestMatchers("/user/**").hasRole("USER")
 
                         // All other API endpoints (prefixed with /api/) require authentication.
                         // NOTE: JWT filter ensures API endpoints still require token even if web paths allow access
@@ -130,21 +128,14 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            // First, try to find the user as an Admin
+            // Only try to find the user as an Admin
             return adminRepository.findByUsername(username)
                     .map(admin -> {
                         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(admin.getRole()));
                         return new CustomUserDetails(admin.getId(), admin.getUsername(), admin.getPassword(), authorities, admin.getRole());
                     })
-                    .orElseGet(() -> {
-                        // If not found as Admin, try to find as a Customer
-                        return customerRepository.findByUsername(username)
-                                .map(customer -> {
-                                    List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-                                    return new CustomUserDetails(customer.getId(), customer.getUsername(), customer.getPassword(), authorities, "ROLE_USER");
-                                })
-                                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-                    });
+                    .orElseThrow(() -> new UsernameNotFoundException("Admin user not found: " + username));
+            // Removed: Logic to find users as Customers with ROLE_USER
         };
     }
 
