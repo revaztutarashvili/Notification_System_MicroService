@@ -1,5 +1,3 @@
-To make this documentation more GitHub-friendly, you can format it using Markdown. This will allow it to be easily readable with clean headings, bullet points, code blocks, and other elements to enhance clarity. Here’s a refined version of your documentation in Markdown format for GitHub:
-
 ---
 
 # Customer Notification Address Facade System
@@ -359,4 +357,3 @@ src/main/resources/
 
 ---
 
-Now your documentation is ready to be added to your GitHub repository. It’s clean, concise, and properly formatted to display in a GitHub markdown viewer!
