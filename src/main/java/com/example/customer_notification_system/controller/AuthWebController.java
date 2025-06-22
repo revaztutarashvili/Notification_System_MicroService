@@ -39,16 +39,7 @@ public class AuthWebController {
         return "auth/login"; // Refers to src/main/resources/templates/auth/login.html
     }
 
-    /**
-     * Displays the registration page.
-     * @param model The model to add attributes for the view.
-     * @return The name of the registration Thymeleaf template.
-     */
-    @GetMapping("/register")
-    public String showRegistrationPage(Model model) {
-        model.addAttribute("registerUserRequest", new RegisterUserRequest());
-        return "auth/register"; // Refers to src/main/resources/templates/auth/register.html
-    }
+
 
     /**
      * Handles the registration form submission.
