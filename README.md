@@ -138,97 +138,92 @@ The project is built on the following technologies:
     </dependency>
 </dependencies>
 
-## 3. Key Features
+3. Key Features
+Admin Management:
+Create, view, update, and delete admin users (requires ROLE_SUPER_ADMIN).
 
-### Admin Management:
+Customer Information Management:
+Add new customer records with full name, email, and phone number.
 
-* Create, view, update, and delete admin users (requires `ROLE_SUPER_ADMIN`).
+View all customers in a paginated list.
 
-### Customer Information Management:
+Update existing customer details.
 
-* Add new customer records with full name, email, and phone number.
-* View all customers in a paginated list.
-* Update existing customer details.
-* Delete customer records.
+Delete customer records.
 
-### Address Management:
+Address Management:
+Add multiple addresses (Email, SMS, Postal) for a customer.
 
-* Add multiple addresses (Email, SMS, Postal) for a customer.
-* View all addresses associated with a customer.
-* Update and delete specific addresses for a customer.
+View all addresses associated with a customer.
 
-### Notification Preference Management:
+Update and delete specific addresses for a customer.
 
-* Manage opt-in/opt-out status for each customer across different channels (Email, SMS, Promotional).
+Notification Preference Management:
+Manage opt-in/opt-out status for each customer across different channels (Email, SMS, Promotional).
 
-### Role-Based Access Control:
+Role-Based Access Control:
+ROLE_SUPER_ADMIN: Can manage admins and customers.
 
-* **ROLE\_SUPER\_ADMIN:** Can manage admins and customers.
-* **ROLE\_ADMIN:** Can manage customers.
-* **ROLE\_USER:** Deprecated for customers in this system.
+ROLE_ADMIN: Can manage customers.
 
-### JWT-based API Security:
+ROLE_USER: Deprecated for customers in this system.
 
-* Secure RESTful API endpoints using JWT.
+JWT-based API Security:
+Secure RESTful API endpoints using JWT.
 
-### Form-based UI Security:
+Form-based UI Security:
+Secure web UI using Spring Security's form login.
 
-* Secure web UI using Spring Security's form login.
-
----
-
-## 4. Setup and Installation
-
+4. Setup and Installation
 Follow these steps to get the project up and running on your local machine.
 
-### Prerequisites:
+Prerequisites:
+Java 17 or higher: Ensure the JDK is installed.
 
-* **Java 17 or higher:** Ensure the JDK is installed.
-* **Maven 3.x.x or higher.**
-* **PostgreSQL:** Ensure the database server is installed and running.
-* **Git:** For cloning the repository.
+Maven 3.x.x or higher.
 
-### Database Setup:
+PostgreSQL: Ensure the database server is installed and running.
 
-1. **Create a PostgreSQL Database:**
+Git: For cloning the repository.
 
-   ```sql
-   CREATE DATABASE customer_notification_db;
-   ```
+Database Setup:
+Create a PostgreSQL Database:
 
-2. **Database Credentials:**
-   Ensure your `application.properties` matches your PostgreSQL credentials.
+sql
+Copy
+Edit
+CREATE DATABASE customer_notification_db;
+Database Credentials:
+Ensure your application.properties matches your PostgreSQL credentials.
 
-   ```properties
-   spring.datasource.username=postgres
-   spring.datasource.password=953012
-   ```
+properties
+Copy
+Edit
+spring.datasource.username=postgres
+spring.datasource.password=953012
+Database Schema:
+The application will automatically create/update the database schema on the first run.
 
-3. **Database Schema:**
-   The application will automatically create/update the database schema on the first run.
+Project Clone and Build:
+Clone the Repository:
 
----
+bash
+Copy
+Edit
+git clone <YOUR_REPOSITORY_URL>
+cd customer_notification_system
+Build the Project:
 
-### Project Clone and Build:
+bash
+Copy
+Edit
+mvn clean install
+Configuration:
+The main configuration file is located in src/main/resources/application.properties.
 
-1. **Clone the Repository:**
-
-   ```bash
-   git clone <YOUR_REPOSITORY_URL>
-   cd customer_notification_system
-   ```
-
-2. **Build the Project:**
-
-   ```bash
-   mvn clean install
-   ```
-
-### Configuration:
-
-The main configuration file is located in `src/main/resources/application.properties`.
-
-```properties
+properties
+Copy
+Edit
 spring.application.name=customer_notification_system
 server.port=8082
 
@@ -244,10 +239,6 @@ app.jwt.expiration-ms=86400000
 
 # Logging
 logging.level.org.springframework.security=DEBUG
-```
-
----
-
 ## 5. Running the Application
 
 You can run the Spring Boot application using Maven:
