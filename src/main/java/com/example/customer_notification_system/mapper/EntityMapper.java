@@ -2,7 +2,6 @@ package com.example.customer_notification_system.mapper;
 
 import java.util.stream.Collectors;
 import java.util.List;
-import java.time.LocalDateTime; // Required for NotificationStatusDTO mapping
 import com.example.customer_notification_system.dto.*;
 import com.example.customer_notification_system.entity.*;
 
@@ -69,13 +68,13 @@ public class EntityMapper {
         );
     }
 
-    // NEW: Admin mapping - შესწორებული role-ის გადასაცემად
+
     public static AdminDTO toAdminDTO(Admin admin) {
         if (admin == null) return null;
         return new AdminDTO(
                 admin.getId(),
                 admin.getUsername(),
-                admin.getRole() // დაამატეთ ეს არგუმენტი
+                admin.getRole()
         );
     }
 }

@@ -21,5 +21,5 @@ public class Admin {
     private String password; // Stored as hashed password
 
     @Column(nullable = false)
-    private String role; // New: Role field (e.g., "ROLE_SUPER_ADMIN", "ROLE_ADMIN")
+    private String role;
 }

@@ -47,22 +47,5 @@ public class NotificationPreferenceServiceImpl implements NotificationPreference
         return EntityMapper.toPreferenceDTO(preferenceRepository.save(preference));
     }
 
-    // TODO: Consider adding a create method if initial preferences are managed separately from update.
-    // Example:
-    /*
-    public NotificationPreferenceDTO createPreferences(Long customerId, CreateNotificationPreferenceRequest request) {
-        if (preferenceRepository.findByCustomerId(customerId).isPresent()) {
-            throw new DuplicateResourceException("Notification preferences already exist for customer ID: " + customerId);
-        }
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
 
-        NotificationPreference newPreference = new NotificationPreference();
-        newPreference.setCustomer(customer);
-        newPreference.setEmailOptIn(request.isEmailOptIn());
-        newPreference.setSmsOptIn(request.isSmsOptIn());
-        newPreference.setPromoOptIn(request.isPromoOptIn());
-        return EntityMapper.toPreferenceDTO(preferenceRepository.save(newPreference));
-    }
-    */
 }

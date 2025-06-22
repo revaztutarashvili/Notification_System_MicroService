@@ -113,9 +113,6 @@ public class CustomerServiceImpl implements CustomerService {
         newCustomer.setFullName(request.getFullName());
         newCustomer.setEmail(request.getEmail());
         newCustomer.setPhoneNumber(request.getPhoneNumber());
-        // Role assignment for new registered customers removed as per request to remove ROLE_USER
-        // The 'role' field in Customer entity can still exist but will not be set to 'ROLE_USER' from the enum.
-        // It will be null by default, or an empty string, depending on your database schema and default values.
 
         Customer savedCustomer = customerRepository.save(newCustomer);
         return modelMapper.map(savedCustomer, CustomerDTO.class);

@@ -50,22 +50,14 @@ public class CustomerController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Retrieves a paginated list of all customers.
-     * Accessible by ADMINs.
-     * Example: GET /api/customers?page=0&size=10&sort=username,asc
-     */
+
     @GetMapping // GET /api/customers
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
     public ResponseEntity<Page<CustomerDTO>> getAllCustomers(Pageable pageable) {
         return ResponseEntity.ok(customerService.getAllCustomers(pageable));
     }
 
-    /**
-     * Searches for customers based on a query string, with pagination and sorting.
-     * Accessible by ADMINs.
-     * Example: GET /api/customers/search?query=john&page=0&size=5&sort=fullName,desc
-     */
+
     @GetMapping("/search") // GET /api/customers/search?query=...
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
     public ResponseEntity<Page<CustomerDTO>> searchCustomers(@RequestParam(required = false) String query, Pageable pageable) {

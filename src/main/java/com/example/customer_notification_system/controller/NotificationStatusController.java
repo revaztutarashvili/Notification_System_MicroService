@@ -17,9 +17,7 @@ import java.util.List;
 public class NotificationStatusController {
     private final NotificationStatusService notificationStatusService;
 
-    /**
-     * Tracks the status of a sent notification. Only accessible by ADMINs.
-     */
+
     @PostMapping("/track") // POST /api/notifications/track
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
     public ResponseEntity<NotificationStatusDTO> trackNotification(@RequestBody TrackNotificationRequest request) {
@@ -30,24 +28,18 @@ public class NotificationStatusController {
                 request.getMessageId()));
     }
 
-    /**
-     * Retrieves a list of all notification statuses for a specific customer.
-     * Accessible by ADMINs (for any customer).
-     */
+
     @GetMapping("/customer/{customerId}") // GET /api/notifications/customer/{customerId}
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')") // Only admins can view customer notification statuses
     public ResponseEntity<List<NotificationStatusDTO>> getByCustomer(@PathVariable Long customerId) {
         return ResponseEntity.ok(notificationStatusService.getStatusByCustomerId(customerId));
     }
 
-    /**
-     * Retrieves a list of notification statuses filtered by a specific status type. Only accessible by ADMINs.
-     */
+
     @GetMapping("/status/{status}") // GET /api/notifications/status/{status}
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_ADMIN')")
     public ResponseEntity<List<NotificationStatusDTO>> getByStatus(@PathVariable String status) {
         return ResponseEntity.ok(notificationStatusService.getStatusByStatus(status));
     }
 
-    // TODO: Consider adding endpoints for reporting on notification delivery success rates, etc. (ADMIN only)
 }

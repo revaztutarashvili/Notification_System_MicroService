@@ -13,5 +13,5 @@ public class UpdateAdminRequest {
 
     @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
-    private String role; // e.g., "ROLE_ADMIN", "ROLE_SUPER_ADMIN"
+    private String role; // "ROLE_ADMIN", "ROLE_SUPER_ADMIN"
 }

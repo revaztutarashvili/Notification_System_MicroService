@@ -1,4 +1,4 @@
-package com.example.customer_notification_system.security; // Place in security package
+package com.example.customer_notification_system.security;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -23,5 +23,5 @@ public class CustomUserDetails extends User {
         return role;
     }
 
-    // You can override other methods if needed, but for now, this is enough
+
 }

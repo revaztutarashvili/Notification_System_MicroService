@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.security.core.Authentication; // Correct import for Spring Security's Authentication
+import org.springframework.security.core.Authentication;
 
 @Controller
 @RequiredArgsConstructor
@@ -19,13 +19,7 @@ public class AuthWebController {
 
     private final CustomerService customerService;
 
-    /**
-     * Displays the login page.
-     * @param error Model attribute to indicate login error.
-     * @param logout Model attribute to indicate successful logout.
-     * @param model The model to add attributes for the view.
-     * @return The name of the login Thymeleaf template.
-     */
+
     @GetMapping("/login")
     public String showLoginPage(@RequestParam(value = "error", required = false) String error,
                                 @RequestParam(value = "logout", required = false) String logout,
@@ -62,12 +56,6 @@ public class AuthWebController {
         }
     }
 
-    /**
-     * Handles redirection after successful login.
-     * This method intercepts the /dashboard path and redirects based on the authenticated user's role.
-     * @param authentication The Spring Security Authentication object containing user details and authorities.
-     * @return A redirection string to the appropriate dashboard URL.
-     */
     @GetMapping("/dashboard")
     public String redirectToDashboard(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) { // Ensure user is authenticated
@@ -83,19 +71,13 @@ public class AuthWebController {
         return "redirect:/login";
     }
 
-    /**
-     * Displays a generic access denied page.
-     * @return The name of the access denied Thymeleaf template.
-     */
+
     @GetMapping("/access-denied")
     public String accessDenied() {
         return "error/access-denied"; // Refers to src/main/resources/templates/error/access-denied.html
     }
 
-    /**
-     * Default root path redirect to login.
-     * @return Redirects to the login page.
-     */
+
     @GetMapping("/")
     public String redirectToRoot() {
         return "redirect:/login"; // Redirect root URL to login page

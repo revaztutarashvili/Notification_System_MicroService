@@ -9,7 +9,4 @@ public interface NotificationPreferenceService {
     // Updated signature to include customerId from the path
     NotificationPreferenceDTO updatePreferences(Long customerId, UpdateNotificationPreferenceRequest request);
 
-    // TODO: Consider adding a createPreferences method if initial preferences are not created automatically
-    // or if PUT doesn't handle creation idempotently in your implementation.
-    // Example: NotificationPreferenceDTO createPreferences(CreateNotificationPreferenceRequest request);
 }

@@ -20,9 +20,7 @@ public class JwtTokenProvider {
     private int jwtExpirationMs;
 
     private SecretKey getSigningKey() {
-        // Use a strong, random key suitable for HS512
-        // For production, use a more secure way to manage this key
-        // Ensure the secret is long enough (e.g., 256 bits for HS256, 512 bits for HS512)
+
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 

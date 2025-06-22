@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CustomerDTO {
     private Long id;
-    private String username; // New: Username field to display
+    private String username; // Username field to display
     private String fullName;
     private String email;
     private String phoneNumber;

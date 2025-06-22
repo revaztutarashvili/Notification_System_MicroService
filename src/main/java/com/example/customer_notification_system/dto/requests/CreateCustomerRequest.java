@@ -29,5 +29,5 @@ public class CreateCustomerRequest {
     @Email(message = "Invalid email format")
     private String email;
 
-    private String phoneNumber; // სურვილისამებრ: დაამატეთ ვალიდაცია საჭიროების შემთხვევაში
+    private String phoneNumber;
 }

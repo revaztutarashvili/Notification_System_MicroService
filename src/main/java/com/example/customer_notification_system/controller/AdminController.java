@@ -1,7 +1,7 @@
 package com.example.customer_notification_system.controller;
 
 import com.example.customer_notification_system.dto.AdminDTO;
-import com.example.customer_notification_system.dto.requests.CreateAdminRequest; // Assuming you have this DTO for creation
+import com.example.customer_notification_system.dto.requests.CreateAdminRequest;
 import com.example.customer_notification_system.dto.requests.UpdateAdminRequest;
 import com.example.customer_notification_system.service.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
-import java.util.List; // If you decide to add getAllAdmins later
 
 @RestController
 @RequestMapping("/api/admins")
@@ -47,17 +46,8 @@ public class AdminController {
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
         adminService.deleteAdmin(id);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
-    // Optional: Get all admins (requires implementation in AdminService)
-    /*
-    @GetMapping
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<List<AdminDTO>> getAllAdmins() {
-        // You would need to add a getAllAdmins method to AdminService and AdminRepository
-        // return ResponseEntity.ok(adminService.getAllAdmins());
-        return ResponseEntity.ok(List.of()); // Placeholder
-    }
-    */
+
 }
