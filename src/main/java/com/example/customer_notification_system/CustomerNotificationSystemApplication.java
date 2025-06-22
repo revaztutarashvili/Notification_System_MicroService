@@ -9,5 +9,5 @@ public class CustomerNotificationSystemApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CustomerNotificationSystemApplication.class, args);
 	}
-
+ 
 }
