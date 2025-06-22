@@ -138,44 +138,41 @@ The project is built on the following technologies:
     </dependency>
 </dependencies>
 
-## 3. Key Features
+3. Key Features
+Admin Management:
+Create, view, update, and delete admin users – Administrators with the ROLE_SUPER_ADMIN role can manage admin users in the system.
 
-### Admin Management:
+Customer Information Management:
+Add new customer records – Add customer details such as full name, email, and phone number.
 
-* Create, view, update, and delete admin users (requires `ROLE_SUPER_ADMIN`).
+View all customers – Customers are displayed in a paginated list.
 
-### Customer Information Management:
+Update customer details – Modify customer information as needed.
 
-* Add new customer records with full name, email, and phone number.
-* View all customers in a paginated list.
-* Update existing customer details.
-* Delete customer records.
+Delete customer records – Remove customer information from the system.
 
-### Address Management:
+Address Management:
+Add multiple addresses for a customer – You can associate several addresses (Email, SMS, Postal) to a customer.
 
-* Add multiple addresses (Email, SMS, Postal) for a customer.
-* View all addresses associated with a customer.
-* Update and delete specific addresses for a customer.
+View customer addresses – See all addresses linked to a specific customer.
 
-### Notification Preference Management:
+Update and delete specific addresses – Modify or remove individual addresses for a customer.
 
-* Manage opt-in/opt-out status for each customer across different channels (Email, SMS, Promotional).
+Notification Preference Management:
+Manage opt-in/opt-out status for notification channels – Admins can set notification preferences (opt-in/opt-out) for each customer across various channels, such as Email, SMS, and Promotional.
 
-### Role-Based Access Control:
+Role-Based Access Control:
+ROLE_SUPER_ADMIN – Full access to manage admins and customers.
 
-* **ROLE\_SUPER\_ADMIN:** Can manage admins and customers.
-* **ROLE\_ADMIN:** Can manage customers.
-* **ROLE\_USER:** Deprecated for customers in this system.
+ROLE_ADMIN – Limited to managing customer records.
 
-### JWT-based API Security:
+ROLE_USER – This role is deprecated for customers, as the system does not require customers to log in.
 
-* Secure RESTful API endpoints using JWT.
+JWT-based API Security:
+Secure RESTful API endpoints – Use JSON Web Tokens (JWT) to protect and authenticate API requests.
 
-### Form-based UI Security:
-
-* Secure web UI using Spring Security's form login.
-
----
+Form-based UI Security:
+Secure web UI – The application uses Spring Security’s form-based login for admin access, ensuring only authenticated users can interact with the admin dashboard.---
 
 ## 4. Setup and Installation
 
