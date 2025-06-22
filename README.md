@@ -137,3 +137,163 @@ The project is built on the following technologies:
         <scope>test</scope>
     </dependency>
 </dependencies>
+3. Key Features
+Admin Management: Create, view, update, and delete admin users (requires ROLE_SUPER_ADMIN).
+Customer Information Management:
+Add new customer records with full name, email, and phone number.
+View all customers in a paginated list.
+Update existing customer details.
+Delete customer records.
+Address Management:
+Add multiple addresses (Email, SMS, Postal) to a specific customer.
+View all addresses associated with a customer.
+Update and delete specific addresses for a customer (functionality for these might need further implementation in controllers/services).
+Notification Preference Management:
+Manage notification opt-in/opt-out status for each customer across different channels (Email, SMS, Promotional). (Functionality for this would typically be accessible from the customer details or a dedicated preferences page).
+Role-Based Access Control:
+ROLE_SUPER_ADMIN: Can manage admins and customers.
+ROLE_ADMIN: Can manage customers.
+ROLE_USER: (Deprecated for customers in this system - customers are data objects, not login users).
+JWT-based API Security: Secure RESTful API endpoints using JSON Web Tokens.
+Form-based UI Security: Secure web UI using Spring Security's form login.
+4. Setup and Installation
+Follow these steps to get the project up and running on your local machine.
+
+Prerequisites
+Java 17 or higher: Ensure Java Development Kit (JDK) 17 is installed.
+Maven: Version 3.x.x or higher.
+PostgreSQL: Database server installed and running.
+Git: For cloning the repository.
+Database Setup
+Create a PostgreSQL Database:
+Open your PostgreSQL client (e.g., psql or pgAdmin) and create a new database.
+
+SQL
+
+CREATE DATABASE customer_notification_db;
+Database Credentials:
+Ensure your application.properties matches your PostgreSQL username and password. By default, it's configured as:
+
+Properties
+
+spring.datasource.username=postgres
+spring.datasource.password=953012
+If your PostgreSQL setup uses different credentials, update these lines in src/main/resources/application.properties.
+
+Database Schema (Automatic):
+The application is configured to automatically create/update the database schema using spring.jpa.hibernate.ddl-auto=create. This means tables will be created automatically when the application starts for the first time.
+
+Project Clone and Build
+Clone the Repository:
+Open your terminal or Git Bash and clone the repository to your local machine:
+
+Bash
+
+git clone <YOUR_REPOSITORY_URL>
+cd customer_notification_system
+Replace <YOUR_REPOSITORY_URL> with the actual URL of your Git repository.
+
+Build the Project:
+Navigate to the root directory of the cloned project (customer_notification_system) and build it using Maven:
+
+Bash
+
+mvn clean install
+This command compiles the code, runs tests, and packages the application into a JAR file.
+
+Configuration
+The main configuration for the application is located in src/main/resources/application.properties.
+
+Properties
+
+spring.application.name=customer_notification_system
+server.port=8082
+
+# Database configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/customer_notification_db
+spring.datasource.username=postgres
+spring.datasource.password=953012
+
+# JPA configuration
+spring.jpa.hibernate.ddl-auto=create # This will drop and re-create schema on every restart! Change to 'update' or 'none' for production.
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# JWT Configuration
+app.jwt.secret=YourSuperSecretKeyThatIsAtLeast256BitsLongAndShouldBeRandomlyGeneratedInProd # IMPORTANT: CHANGE THIS IN PRODUCTION!
+app.jwt.expiration-ms=86400000 # 24 hours in milliseconds
+
+# Logging level for Spring Security (can be set to INFO for less verbosity)
+logging.level.org.springframework.security=DEBUG
+Important:
+
+spring.jpa.hibernate.ddl-auto=create: This setting will drop all existing tables and re-create them every time the application starts. This is suitable for development but should be changed to update or none for production environments to prevent data loss.
+app.jwt.secret: Change this secret key in a production environment. Generate a strong, random string that is at least 256 bits long.
+5. Running the Application
+You can run the Spring Boot application using Maven:
+
+Bash
+
+mvn spring-boot:run
+The application will start on http://localhost:8082.
+
+6. Accessing the Application
+Admin Login
+Upon the first run of the application, if no admin users exist in the database, a default Super Admin user will be created automatically.
+
+URL: http://localhost:8082/login
+Default Super Admin Username: superadmin
+Default Super Admin Password: 123
+You can log in using these credentials. Upon successful login, you will be redirected to the Admin Dashboard.
+
+Important: It is highly recommended to change the default super admin password after the first login in a production environment.
+
+Admin Dashboard
+After logging in as an admin, you will be redirected to the admin dashboard.
+
+URL: http://localhost:8082/admin/dashboard (you will be redirected here after successful login).
+From the dashboard, you can navigate to other admin management pages (Admins, Customers, etc.).
+
+7. API Endpoints (For External Systems)
+The system exposes RESTful APIs primarily for other microservices to consume. These endpoints are protected by JWT authentication (for non-public ones).
+
+Authentication API:
+POST /api/auth/login: Authenticate an admin user and receive a JWT.
+Request Body (JSON): { "username": "your_username", "password": "your_password" }
+Response: JWT token for subsequent API calls.
+Customer Management APIs:
+POST /api/customers: Create a new customer.
+GET /api/customers: Get a list of all customers.
+GET /api/customers/{id}: Get customer details by ID.
+PUT /api/customers/{id}: Update customer details by ID.
+DELETE /api/customers/{id}: Delete a customer by ID.
+Address Management APIs:
+POST /api/addresses: Add a new address for a customer.
+GET /api/addresses/customer/{customerId}: Get all addresses for a specific customer.
+DELETE /api/addresses/{id}: Delete an address by ID.
+(Further API endpoints for Notification Preferences and Admin Management are also available as defined in respective controllers).
+To use protected API endpoints:
+Include the JWT received from /api/auth/login in the Authorization header of your requests:
+Authorization: Bearer <YOUR_JWT_TOKEN>
+
+8. Project Structure Overview
+The project follows a standard Spring Boot application structure:
+
+src/main/java/com/example/customer_notification_system/:
+config/: Spring Security and application-wide configurations.
+controller/: REST API controllers and Web UI controllers (Thymeleaf).
+dto/: Data Transfer Objects (DTOs) for requests and responses.
+entity/: JPA entities mapping to database tables.
+enums/: Enumerations for address types, notification channels etc.
+exception/: Custom exception classes.
+mapper/: Utility classes for mapping entities to DTOs.
+repository/: Spring Data JPA repositories for database interaction.
+security/: JWT utilities, custom UserDetails, and UserDetailsService implementation.
+service/: Business logic services and their implementations.
+src/main/resources/:
+application.properties: Application configuration properties.
+static/: Static web resources (CSS, JS, images).
+templates/: Thymeleaf HTML templates (e.g., login.html, admin/, auth/).
+<!-- end list -->
+
