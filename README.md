@@ -1,9 +1,11 @@
-Here's the markdown version of your documentation for GitHub, optimized for better readability and structure:
+Here's your documentation in Markdown format, structured to look clean and organized on GitHub:
 
 ````markdown
 # Customer Notification Address Facade System
 
-This repository contains the source code for the **Customer Notification Address Facade System**, a Spring Boot microservice designed to centralize and manage customer contact information and notification preferences. It serves as a unified source for all recipient addresses and delivery statuses, enabling other systems in the ecosystem to efficiently retrieve and update customer delivery data.
+This repository contains the source code for the **Customer Notification Address Facade System**, a Spring Boot microservice designed to centralize and manage customer contact information and notification preferences. It acts as a unified source for all recipient addresses and delivery statuses, enabling other systems within the ecosystem to efficiently retrieve and update customer delivery data.
+
+---
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -21,110 +23,172 @@ This repository contains the source code for the **Customer Notification Address
 7. [API Endpoints (For External Systems)](#api-endpoints-for-external-systems)
 8. [Project Structure Overview](#project-structure-overview)
 
-## Overview
+---
 
-This project involves creating a **Customer Notification Address Facade System**, a microservice to centralize and manage customer contact information and preferences for notifications. The system acts as a single source of truth for all recipient addresses and delivery statuses, helping other systems in the ecosystem to fetch and update customer delivery data efficiently.
+## 1. Overview
+This project involves creating a **Customer Notification Address Facade System**, a microservice to centralize and manage customer contact information and preferences for notifications. This system will act as a single source of truth for all recipient addresses and delivery statuses, helping other systems in the ecosystem to fetch and update customer delivery data efficiently.
+
+The **Customer Notification Address Facade System** is a backend microservice responsible for maintaining a definitive source of truth for customer contact details (email, phone, postal address) and their notification preferences (opt-in/opt-out for various channels). This system is designed to be consumed by other services through a RESTful API, providing a robust and centralized mechanism for managing recipient data crucial for notification delivery.
 
 ### Key Design Principles:
-- **Centralized Data**: Single source for all customer contact and preference data.
-- **Microservice Architecture**: Designed to be integrated into a larger ecosystem.
-- **Admin-Managed Customers**: Customer data is managed exclusively by system administrators.
-- **Secure Administration**: Only authenticated administrators can access the UI and APIs.
+- **Centralized Data:** Single source for all customer contact and preference data.
+- **Microservice Architecture:** Designed to be easily integrated into a larger ecosystem.
+- **Admin-Managed Customers:** Customer data is added, updated, and deleted exclusively by system administrators.
+- **Secure Administration:** Only authenticated administrators can access the management UI and administrative APIs.
 
-## Technical Stack
+---
 
+## 2. Technical Stack
 The project is built on the following technologies:
 
-- **Spring Boot 3.3.12**: Core framework for building stand-alone, production-grade Spring applications.
-- **Spring Data JPA**: For simplified data access and persistence with Hibernate.
-- **Spring Security**: Authentication and authorization (JWT for APIs, Form Login for UI).
-- **Thymeleaf**: Server-side Java template engine for rich web UI.
-- **PostgreSQL**: Relational database for data storage.
-- **Maven**: Project management and build automation.
-- **Lombok**: Reduces boilerplate code (getters, setters, constructors).
-- **ModelMapper**: Convention-based object-to-object mapping.
-- **JJWT (Java JWT)**: For secure JSON Web Token creation and validation.
-- **Jakarta Validation**: Declarative data validation annotations.
-- **Bootstrap 4 & Tailwind CSS**: For responsive web UI styling.
+- **Spring Boot 3.3.12:** Core framework for building robust, stand-alone, production-grade Spring applications.
+- **Spring Data JPA:** For simplified data access and persistence with Hibernate.
+- **Spring Security:** For authentication and authorization (JWT for APIs, Form Login for UI).
+- **Thymeleaf:** For web UI development (Admin pages).
+- **PostgreSQL:** Relational database for data storage.
+- **Maven:** Project management and build automation tool.
+- **Lombok:** Reduces boilerplate code (e.g., getters, setters, constructors).
+- **ModelMapper:** Convention-based object-to-object mapping library.
+- **JJWT (Java JWT):** For secure API communication.
+- **Jakarta Validation:** For declarative data validation (e.g., `@NotBlank`, `@Email`).
+- **Bootstrap 4 & Tailwind CSS:** For responsive and modern styling of the web UI.
 
-## Key Features
-
-- **Admin Management**: Create, view, update, and delete admin users.
-- **Customer Information Management**:
-  - Add, view, update, and delete customer details (full name, email, phone number).
-  - Pagination support for listing customers.
-- **Address Management**:
-  - Add, view, update, and delete customer addresses (email, SMS, postal).
-- **Notification Preference Management**:
-  - Manage notification opt-in/opt-out statuses for customers.
-- **Role-Based Access Control**:
-  - `ROLE_SUPER_ADMIN`: Can manage admins and customers.
-  - `ROLE_ADMIN`: Can manage customers.
-  - `ROLE_USER`: Deprecated in this system (customers are data objects, not login users).
-- **JWT-based API Security**: Secure RESTful APIs with JWT authentication.
-- **Form-based UI Security**: Secure UI with Spring Security's form login.
-
-## Setup and Installation
-
-### Prerequisites
-- **Java 17 or higher**: Ensure JDK 17 is installed.
-- **Maven**: Version 3.x.x or higher.
-- **PostgreSQL**: Database server installed and running.
-- **Git**: For cloning the repository.
-
-### Database Setup
-1. **Create a PostgreSQL Database**:
-   ```sql
-   CREATE DATABASE customer_notification_db;
+### Dependencies (from `pom.xml`):
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+    <!-- Add other dependencies as listed in the original document -->
+</dependencies>
 ````
 
-2. **Update Credentials**:
-   Ensure the `application.properties` file matches your PostgreSQL username and password:
+---
+
+## 3. Key Features
+
+### Admin Management:
+
+* Create, view, update, and delete admin users (requires `ROLE_SUPER_ADMIN`).
+
+### Customer Information Management:
+
+* Add new customer records with full name, email, and phone number.
+* View all customers in a paginated list.
+* Update existing customer details.
+* Delete customer records.
+
+### Address Management:
+
+* Add multiple addresses (Email, SMS, Postal) for a customer.
+* View all addresses associated with a customer.
+* Update and delete specific addresses for a customer.
+
+### Notification Preference Management:
+
+* Manage opt-in/opt-out status for each customer across different channels (Email, SMS, Promotional).
+
+### Role-Based Access Control:
+
+* **ROLE\_SUPER\_ADMIN:** Can manage admins and customers.
+* **ROLE\_ADMIN:** Can manage customers.
+* **ROLE\_USER:** Deprecated for customers in this system.
+
+### JWT-based API Security:
+
+* Secure RESTful API endpoints using JWT.
+
+### Form-based UI Security:
+
+* Secure web UI using Spring Security's form login.
+
+---
+
+## 4. Setup and Installation
+
+Follow these steps to get the project up and running on your local machine.
+
+### Prerequisites:
+
+* **Java 17 or higher:** Ensure the JDK is installed.
+* **Maven 3.x.x or higher.**
+* **PostgreSQL:** Ensure the database server is installed and running.
+* **Git:** For cloning the repository.
+
+### Database Setup:
+
+1. **Create a PostgreSQL Database:**
+
+   ```sql
+   CREATE DATABASE customer_notification_db;
+   ```
+
+2. **Database Credentials:**
+   Ensure your `application.properties` matches your PostgreSQL credentials.
 
    ```properties
    spring.datasource.username=postgres
    spring.datasource.password=953012
    ```
 
-3. **Database Schema**:
-   The application will automatically create the database schema when it starts if not already created.
+3. **Database Schema:**
+   The application will automatically create/update the database schema on the first run.
 
-### Project Clone and Build
+---
 
-1. **Clone the Repository**:
+### Project Clone and Build:
+
+1. **Clone the Repository:**
 
    ```bash
    git clone <YOUR_REPOSITORY_URL>
    cd customer_notification_system
    ```
-2. **Build the Project**:
+
+2. **Build the Project:**
 
    ```bash
    mvn clean install
    ```
 
-### Configuration
+### Configuration:
 
-The main configuration is located in `src/main/resources/application.properties`:
+The main configuration file is located in `src/main/resources/application.properties`.
 
 ```properties
 spring.application.name=customer_notification_system
 server.port=8082
+
+# Database configuration
 spring.datasource.url=jdbc:postgresql://localhost:5432/customer_notification_db
 spring.datasource.username=postgres
 spring.datasource.password=953012
 spring.jpa.hibernate.ddl-auto=create
-spring.jpa.show-sql=true
-app.jwt.secret=YourSuperSecretKeyThatIsAtLeast256BitsLongAndShouldBeRandomlyGeneratedInProd
+
+# JWT Configuration
+app.jwt.secret=YourSuperSecretKey
 app.jwt.expiration-ms=86400000
+
+# Logging
+logging.level.org.springframework.security=DEBUG
 ```
 
-**Important Notes**:
+---
 
-* **`spring.jpa.hibernate.ddl-auto=create`**: This setting will drop and re-create the schema on each start. Change it to `update` or `none` for production.
-* **`app.jwt.secret`**: Change this secret key in production to a strong, randomly generated string.
-
-## Running the Application
+## 5. Running the Application
 
 You can run the Spring Boot application using Maven:
 
@@ -132,50 +196,43 @@ You can run the Spring Boot application using Maven:
 mvn spring-boot:run
 ```
 
-The application will start at [http://localhost:8082](http://localhost:8082).
+The application will be available at: `http://localhost:8082`.
 
-## Accessing the Application
+---
 
-### Admin Login
+## 6. Accessing the Application
 
-Upon the first run, a default Super Admin user will be created automatically.
+### Admin Login:
 
-* **URL**: [http://localhost:8082/login](http://localhost:8082/login)
-* **Username**: `superadmin`
-* **Password**: `123`
+* **URL:** `http://localhost:8082/login`
+* **Default Super Admin Username:** `superadmin`
+* **Default Super Admin Password:** `123`
 
-**Note**: It is highly recommended to change the default password after the first login.
+### Admin Dashboard:
 
-### Admin Dashboard
+After logging in, you will be redirected to the admin dashboard at:
 
-Once logged in, you will be redirected to the Admin Dashboard:
+`http://localhost:8082/admin/dashboard`
 
-* **URL**: [http://localhost:8082/admin/dashboard](http://localhost:8082/admin/dashboard)
+From the dashboard, you can manage admins, customers, and other settings.
 
-From the dashboard, you can navigate to various management pages (Admins, Customers, etc.).
+---
 
-## API Endpoints (For External Systems)
+## 7. API Endpoints (For External Systems)
 
 ### Authentication API:
 
-* **POST /api/auth/login**: Authenticate an admin and receive a JWT.
+* **POST /api/auth/login**: Authenticate an admin user and receive a JWT.
 
-**Request Body**:
+  * **Request Body:**
 
-```json
-{
-  "username": "your_username",
-  "password": "your_password"
-}
-```
-
-**Response**:
-
-```json
-{
-  "token": "YOUR_JWT_TOKEN"
-}
-```
+    ```json
+    {
+      "username": "your_username",
+      "password": "your_password"
+    }
+    ```
+  * **Response:** JWT token.
 
 ### Customer Management APIs:
 
@@ -188,43 +245,42 @@ From the dashboard, you can navigate to various management pages (Admins, Custom
 ### Address Management APIs:
 
 * **POST /api/addresses**: Add an address for a customer.
-* **GET /api/addresses/customer/{customerId}**: Get all addresses for a customer.
+* **GET /api/addresses/customer/{customerId}**: Get customer addresses.
 * **DELETE /api/addresses/{id}**: Delete an address.
 
-**To use protected API endpoints**, include the JWT in the `Authorization` header:
+### JWT Usage:
 
-```http
+Include the JWT token in the `Authorization` header for protected endpoints:
+
+```bash
 Authorization: Bearer <YOUR_JWT_TOKEN>
-```
-
-## Project Structure Overview
-
-The project follows a standard Spring Boot application structure:
-
-```plaintext
-src/main/java/com.example.customer_notification_system/
-  ├── config/        # Security and application configurations
-  ├── controller/    # API and UI controllers
-  ├── dto/           # Data Transfer Objects
-  ├── entity/        # JPA entities
-  ├── enums/         # Enum classes
-  ├── exception/     # Custom exceptions
-  ├── mapper/        # Utility classes for mapping entities to DTOs
-  ├── repository/    # Spring Data JPA repositories
-  ├── security/      # JWT utilities and custom UserDetails
-  ├── service/       # Business logic services
-
-src/main/resources/
-  ├── application.properties  # Application configuration
-  ├── static/                 # Static assets (CSS, JS, images)
-  ├── templates/              # Thymeleaf templates (login, admin, etc.)
 ```
 
 ---
 
-Feel free to adjust any placeholder values or configurations as per your requirements.
+## 8. Project Structure Overview
+
+The project follows a standard Spring Boot structure:
 
 ```
+src/main/java/com/example/customer_notification_system/
+    ├── config/        # Spring Security and app-wide configurations
+    ├── controller/    # REST API controllers & Thymeleaf web UI controllers
+    ├── dto/           # Data Transfer Objects for requests and responses
+    ├── entity/        # JPA entities mapping to database tables
+    ├── enums/         # Enumerations for address types, notification channels
+    ├── exception/     # Custom exception classes
+    ├── mapper/        # Utility classes for entity-to-DTO mapping
+    ├── repository/    # Spring Data JPA repositories
+    ├── security/      # JWT utilities, custom UserDetails, etc.
+    └── service/       # Business logic services
 
-This markdown version makes the documentation clean, structured, and GitHub-friendly with headers, lists, and code blocks. It also ensures the content is easily readable and follows standard Markdown practices for GitHub repositories.
+src/main/resources/
+    ├── application.properties
+    ├── static/        # Static resources (CSS, JS)
+    └── templates/     # Thymeleaf templates (e.g., login.html, admin/)
 ```
+
+---
+
+Now
