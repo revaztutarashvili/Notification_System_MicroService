@@ -1,5 +1,3 @@
----
-
 # Customer Notification Address Facade System
 
 This repository contains the source code for the **Customer Notification Address Facade System**, a Spring Boot microservice designed to centralize and manage customer contact information and notification preferences. It acts as a unified source for all recipient addresses and delivery statuses, enabling other systems within the ecosystem to efficiently retrieve and update customer delivery data.
