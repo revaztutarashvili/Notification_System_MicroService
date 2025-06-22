@@ -49,6 +49,27 @@ The project is built on the following technologies:
 * **Jakarta Validation:** For declarative data validation (e.g., `@NotBlank`, `@Email`).
 * **Bootstrap 4 & Tailwind CSS:** For responsive and modern styling of the web UI.
 
+* ## 3. Key Features
+
+* **Admin Management:** Create, view, update, and delete admin users (requires `ROLE_SUPER_ADMIN`).
+* **Customer Information Management:**
+    * Add new customer records with full name, email, and phone number.
+    * View all customers in a paginated list.
+    * Update existing customer details.
+    * Delete customer records.
+* **Address Management:**
+    * Add multiple addresses (Email, SMS, Postal) to a specific customer.
+    * View all addresses associated with a customer.
+    * Update and delete specific addresses for a customer (functionality for these might need further implementation in controllers/services).
+* **Notification Preference Management:**
+    * Manage notification opt-in/opt-out status for each customer across different channels (Email, SMS, Promotional). (Functionality for this would typically be accessible from the customer details or a dedicated preferences page).
+* **Role-Based Access Control:**
+    * `ROLE_SUPER_ADMIN`: Can manage admins and customers.
+    * `ROLE_ADMIN`: Can manage customers.
+    * `ROLE_USER`: (Deprecated for customers in this system - customers are data objects, not login users).
+* **JWT-based API Security:** Secure RESTful API endpoints using JSON Web Tokens.
+* **Form-based UI Security:** Secure web UI using Spring Security's form login.
+
 **Dependencies (from `pom.xml`):**
 
 ```xml
