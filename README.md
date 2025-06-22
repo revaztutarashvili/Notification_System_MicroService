@@ -174,18 +174,18 @@ Secure RESTful API endpoints – Use JSON Web Tokens (JWT) to protect and authen
 Form-based UI Security:
 Secure web UI – The application uses Spring Security’s form-based login for admin access, ensuring only authenticated users can interact with the admin dashboard.---
 
-## 4. Setup and Installation
+# 4. Setup and Installation
 
 Follow these steps to get the project up and running on your local machine.
 
-### Prerequisites:
+## Prerequisites:
 
-* **Java 17 or higher:** Ensure the JDK is installed.
-* **Maven 3.x.x or higher.**
-* **PostgreSQL:** Ensure the database server is installed and running.
-* **Git:** For cloning the repository.
+**Java 17 or higher:** Ensure the JDK is installed.
+**Maven 3.x.x or higher.**
+**PostgreSQL:** Ensure the database server is installed and running.
+**Git:** For cloning the repository.
 
-### Database Setup:
+## Database Setup:
 
 1. **Create a PostgreSQL Database:**
 
