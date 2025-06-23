@@ -206,7 +206,7 @@ The project is built using the following technologies:
 
    ```properties
    spring.datasource.username=postgres
-   spring.datasource.password=953012
+   spring.datasource.password=953012(set your DB Password here)
    ```
 
 3. **Database Schema (Automatic)**:
@@ -241,7 +241,7 @@ server.port=8082
 # Database configuration
 spring.datasource.url=jdbc:postgresql://localhost:5432/customer_notification_db
 spring.datasource.username=postgres
-spring.datasource.password=953012
+spring.datasource.password=953012 (set your DB Password here)
 
 # JWT Configuration
 app.jwt.secret=YourSuperSecretKeyHere
